@@ -1,0 +1,27 @@
+
+.Board {
+  position: relative;
+  width: 400px;
+  height: 400px;
+  overflow: hidden;
+  border: 5px;
+  border-color: black;
+  border-style: solid;
+  display: block;
+  margin: auto;
+}
+
+.Tile {
+  width: 50px;
+  padding-bottom: 50px;
+  float: left;
+  position: relative;
+}
+
+.WhiteTile {
+  background: white;
+}
+
+.RedTile {
+  background: red;
+}
