@@ -11,6 +11,7 @@ export class Checker extends React.Component {
       turn: 0,
       selected: null,
       possibleMoves: [],
+      gameOver: false,
       board: [[0, 0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0, 0],
       [-1, -1, -1, -1, -1, -1, -1, -1],
@@ -49,21 +50,21 @@ export class Checker extends React.Component {
     return false;
   }
 
-  checkOpponent(i, j) {
-    if (this.isCellValid(i, j) && this.state.board[i][j] === (this.state.turn + 1) % 2)
+  checkIfOpponent(i, j, player) {
+    if (this.isCellValid(i, j) && this.state.board[i][j] === this.getOpponent(player))
       return true;
     
     return false;
   }
 
-  calculatePossibleMove(i, j) {
+  calculatePossibleMove(i, j, player) {
 
     let possibleMoves = [];
 
-    if (this.state.turn === 0) {
+    if (player === 0) {
       if (this.checkMovePossible(i + 1, j - 1)) {
         possibleMoves.push({x: i + 1, y: j - 1});
-      } else if (this.checkOpponent(i + 1, j - 1)) {
+      } else if (this.checkIfOpponent(i + 1, j - 1, player)) {
         if (this.checkMovePossible(i + 2, j - 2)) {
           possibleMoves.push({x: i + 2, y: j - 2});
         }
@@ -71,7 +72,7 @@ export class Checker extends React.Component {
 
       if (this.checkMovePossible(i + 1, j + 1)) {
         possibleMoves.push({x: i + 1, y: j + 1});
-      } else if (this.checkOpponent(i + 1, j + 1)) {
+      } else if (this.checkIfOpponent(i + 1, j + 1, player)) {
         if (this.checkMovePossible(i + 2, j + 2)) {
           possibleMoves.push({x: i + 2, y: j + 2});
         }
@@ -80,7 +81,7 @@ export class Checker extends React.Component {
 
       if (this.checkMovePossible(i - 1, j - 1)) {
         possibleMoves.push({x: i - 1, y: j - 1});
-      } else if (this.checkOpponent(i - 1, j - 1)) {
+      } else if (this.checkIfOpponent(i - 1, j - 1, player)) {
         if (this.checkMovePossible(i - 2, j - 2)) {
           possibleMoves.push({x: i - 2, y: j - 2});
         }
@@ -88,7 +89,7 @@ export class Checker extends React.Component {
 
       if (this.checkMovePossible(i - 1, j + 1)) {
         possibleMoves.push({x: i - 1, y: j + 1});
-      } else if (this.checkOpponent(i - 1, j + 1)) {
+      } else if (this.checkIfOpponent(i - 1, j + 1, player)) {
         if (this.checkMovePossible(i - 2, j + 2)) {
           possibleMoves.push({x: i - 2, y: j + 2});
         }
@@ -98,9 +99,41 @@ export class Checker extends React.Component {
     return possibleMoves;
   }
 
-  handleClick = (i, j) => {
-    console.log(i + " " + j);
+  getAllPositionOfPlayer(player) {
+    let allPositions = [];
 
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        if (this.state.board[i][j] === player)
+          allPositions.push({x: i, y: j});
+      }
+    }
+
+    return allPositions;
+  }
+
+  getOpponent(player) {
+    return (player + 1) % 2;
+  }
+
+  checkGameOver(player) {
+    let allPositions = this.getAllPositionOfPlayer(player);
+  
+    if (allPositions.length <= 0)
+      return this.getOpponent(player);
+
+    for (let i = 0; i < allPositions.length; i++) {
+      let possibleMoves = this.calculatePossibleMove(allPositions[i].x, allPositions[i].y, player);
+
+      if (possibleMoves.length > 0)
+        return -1;
+    }
+    
+    return this.getOpponent(player);
+  }
+
+  handleClick = (i, j) => {
+  
     // Check if any item is selected
     if (this.state.selected !== null) {
 
@@ -118,18 +151,28 @@ export class Checker extends React.Component {
           newBoard[a][b] = -1;
         }
 
+        let opponent = this.getOpponent(this.state.turn);
+
         this.setState({
-          turn: (this.state.turn + 1) % 2,
+          turn: opponent,
           possibleMoves: [],
           board:  newBoard,
           selected: null
         });
+
+        let gameOver = this.checkGameOver(opponent);
+
+        if (gameOver !== -1) {
+          this.setState({
+            gameOver: true
+          })
+        }
       }
     } else {
       // Select the clicked item is possible
       if (this.state.board[i][j] === this.state.turn) {
 
-        let possibleMoves = this.calculatePossibleMove(i, j);
+        let possibleMoves = this.calculatePossibleMove(i, j, this.state.turn);
 
         if (possibleMoves.length > 0) {
           this.setState({
@@ -164,7 +207,10 @@ export class Checker extends React.Component {
     for (let i = 0; i < 8; i++) {
       for (let j = 0; j < 8; j++) {
         tiles.push(
-          <div key={`Tile-${i}-${j}`} className={`Tile ${i % 2 == j % 2 ? 'RedTile' : 'WhiteTile'} ${this.isCellSelected(i, j) ? 'Selected ' : '' } ${this.isCellMovable(i, j) ? 'Movable' : '' }`} onClick={(e) => this.handleClick(i, j)}>
+          <div key={`Tile-${i}-${j}`} className={`Tile ${i % 2 == j % 2 ? 'RedTile' : 'WhiteTile'} 
+          ${this.isCellSelected(i, j) ? 'Selected ' : '' } 
+          ${this.isCellMovable(i, j) ? 'Movable' : '' }`} 
+          onClick={(e) => { if (!this.state.gameOver) this.handleClick(i, j)} }>
             {
               (this.state.board[i][j] === 0 && this.renderBlackPiece()) || 
               (this.state.board[i][j] === 1 && this.renderRedPiece())
