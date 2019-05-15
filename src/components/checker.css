@@ -1,5 +1,8 @@
 
 .Board {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   position: relative;
   width: 400px;
   height: 400px;
@@ -23,5 +26,21 @@
 }
 
 .RedTile {
-  background: red;
+  background: grey;
+}
+
+.Piece {
+  width: 50px;
+  height: 50px;
+  top: 0px;
+  left: 0px;
+  position: absolute;
+}
+
+.Selected {
+  box-shadow:inset 0px 0px 0px 10px #ff54ff;
+}
+
+.Movable {
+  box-shadow:inset 0px 0px 0px 25px #564132;
 }
