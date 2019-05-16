@@ -14,6 +14,10 @@
   margin: auto;
 }
 
+.Disable {
+  opacity: 0.5;
+}
+
 .Tile {
   width: 50px;
   padding-bottom: 50px;
