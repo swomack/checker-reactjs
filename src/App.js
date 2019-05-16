@@ -1,10 +1,11 @@
 import React from 'react';
 import './App.css';
-import './components/Board'
-import { Board } from './components/Board';
-import { GameControllers } from './components/GameControllers';
-import { Player } from './components/Player' 
-import {MessageBanner} from './components/MessageBanner'
+import './components/board/Board.css'
+import { Board } from './components/board/Board';
+import { GameControllers } from './components/gameControllers/GameControllers';
+import { Player } from './player/Player' 
+import { MessageBanner } from './components/messageBanner/MessageBanner'
+import { Status } from './components/status/Status'
 
 const PlayerType = {
   First: 0,
@@ -18,6 +19,11 @@ const GameState = {
   Over: 3
 }
 
+const TurnIndicatorStyle = {
+  width: '50px',
+  hight: '50px',
+};
+
 export class  App extends React.Component {
   constructor(props) {
     super(props);
@@ -30,8 +36,7 @@ export class  App extends React.Component {
       turn: PlayerType.First,
       selected: null,
       players: ['Player1', 'Player2'],
-      //gameState: GameState.Stopped,
-      gameState: GameState.Over,
+      gameState: GameState.Stopped,
       possibleMoves: [],
       board: this.getDefaultBoard()
     };
@@ -72,21 +77,33 @@ export class  App extends React.Component {
   }
   
   render() {
+
+    let statusStyle = {...TurnIndicatorStyle};
+    if (this.state.turn === PlayerType.Second)
+      statusStyle.backgroundColor = 'Red';
+    else
+      statusStyle.backgroundColor = 'Black';
+
     return (
       <div className="App">
         <GameControllers  text={this.getGameControllerButtonText()} 
                           onClick={() => this.onClickGameStart()}
                           players = {this.state.players}
                            />
+        <Status style = {statusStyle}/>
         <Board onClick = {(row, column) => this.onClickCell(row, column)} 
                 board = {this.state.board} 
-                disabled = {this.state.gameState === GameState.Stopped || this.state.gameState === GameState.Over} 
+                disabled = {this.isBoardDisabled()} 
                 selected = {this.state.selected}
                 highlighted = {this.state.possibleMoves}
         />
-        {this.state.gameState === GameState.Over ? (<MessageBanner heading = 'Game Over!' message = "Wins!" />) : ''}
+        {this.state.gameState === GameState.Over ? (<MessageBanner heading = 'Game Over!' message = {`${this.state.players[this.getOpponent(this.state.turn)]} Wins!!`} />) : ''}
       </div>
     );
+  }
+
+  isBoardDisabled() {
+    return this.state.gameState === GameState.Stopped || this.state.gameState === GameState.Over;
   }
 
   getGameControllerButtonText() {
@@ -98,7 +115,20 @@ export class  App extends React.Component {
 
   onClickCell(row, column) {
 
+    if (this.isBoardDisabled())
+      return;
+
     if (this.state.selected !== null) {
+
+      if (this.state.selected.row === row && this.state.selected.column === column) {
+        this.setState({
+          selected: null,
+          possibleMoves: [],
+        });
+
+        return;
+      }
+
       this.tryToMoveSelectedPiece(row, column);
     } else {
       this.selectPieceToMove(row, column);

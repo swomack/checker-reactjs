@@ -11,17 +11,15 @@ export class GameControllers extends React.Component {
     <div className = 'GameController'>
       <div className = 'EditContainer'>
         <div>
-          Player1: <input value = {this.props.players[0]} onChange={(e) => this.changePlayerName(e, 0)}></input>
+          <span>Player1: </span><input className = 'Edit' value = {this.props.players[0]} readOnly></input>
         </div>
         <div>
-          Player2: <input value = {this.props.players[1]} onChange={(e) => this.changePlayerName(e, 1)}></input>
+        <span>Player2: </span> <input className = 'Edit' value = {this.props.players[1]} readOnly></input>
         </div>
       </div>
-      <div className='StartButton'>
-        <button onClick={(e) => this.props.onClick()}>
+      <button className = 'StartButton' onClick={(e) => this.props.onClick()}>
           {this.props.text}
-        </button>
-      </div>
+      </button>
     </div>);
   }
 }

@@ -1,7 +1,7 @@
 import './Board.css';
 import React from 'react';
-import {Piece} from './Piece';
-import { Square } from './square'; 
+import {Piece} from '../piece/Piece';
+import { Square } from '../square/square'; 
 
 
 const TileStyle = {
@@ -86,7 +86,7 @@ export class Board extends React.Component {
 
     return (
       <div>
-        <div className={`Board ${this.props.disabled ? 'Disable' : ''}`}>
+        <div className={`Board ${this.props.disabled ? 'Disabled' : ''}`}>
           {tiles}
         </div>
       </div>
