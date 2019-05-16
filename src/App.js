@@ -4,45 +4,100 @@ import './App.css';
 import './components/Board'
 import { Board } from './components/Board';
 import { GameControllers } from './components/GameControllers';
+import { Player } from './components/Player' 
 
-
-
+const Players = {
+  First: 0,
+  Second: 1
+}
 
 export class  App extends React.Component {
+
 
   constructor(props) {
     super(props);
 
     this.state = {
-      turn: 0,
+      turn: Players.First,
       selected: null,
       possibleMoves: [],
       gameOver: true,
-      board: [[0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0],
-      [-1, -1, -1, -1, -1, -1, -1, -1],
-      [-1, -1, -1, -1, -1, -1, -1, -1],
-      [-1, -1, -1, -1, -1, -1, -1, -1],
-      [-1, -1, -1, -1, -1, -1, -1, -1],
-      [1, 1, 1, 1, 1, 1, 1, 1],
-      [1, 1, 1, 1, 1, 1, 1, 1]]
+      board: [
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null]
+      ]
     };
+
+    for (let i = 0; i < 2; i++) {
+      for (let j = 0; j < 8; j++) {
+        this.state.board[i][j] = this.getBoardData(Players.First);
+      }
+    }
+
+    for (let i = 6; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        this.state.board[i][j] = this.getBoardData(Player.Second);
+      }
+    }
+  }
+
+  getBoardData(player) {
+    if (player === Players.First)
+      return this.getNewBlackPiece();
+    else
+      return this.getNewRedPiece();
+  }
+
+  getNewBlackPiece() {
+    return new Player(
+      Players.First,
+      'Black',
+      'Red'
+    );
+  }
+
+  getNewRedPiece() {
+    return new Player(
+      Players.Second,
+      'Red',
+      'Black'
+    );
   }
 
   initializeState() {
     this.setState({
-      turn: 0,
+      turn: Players.First,
       selected: null,
       possibleMoves: [],
-      board: [[0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0],
-      [-1, -1, -1, -1, -1, -1, -1, -1],
-      [-1, -1, -1, -1, -1, -1, -1, -1],
-      [-1, -1, -1, -1, -1, -1, -1, -1],
-      [-1, -1, -1, -1, -1, -1, -1, -1],
-      [1, 1, 1, 1, 1, 1, 1, 1],
-      [1, 1, 1, 1, 1, 1, 1, 1]]
+      board: [
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null],
+        [null, null, null, null, null, null, null, null]
+      ]
     });
+
+    for (let i = 0; i < 2; i++) {
+      for (let j = 0; j < 8; j++) {
+        this.state.board[i][j] = this.getBoardData(Players.First);
+      }
+    }
+
+    for (let i = 6; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        this.state.board[i][j] = this.getBoardData(Player.Second);
+      }
+    }
   }
   
   render() {
@@ -54,7 +109,8 @@ export class  App extends React.Component {
                 board = {this.state.board} 
                 disabled = {this.state.gameOver} 
                 selected = {this.state.selected}
-                highlighted = {this.state.possibleMoves} />
+                highlighted = {this.state.possibleMoves}
+                />
       </div>
     );
   }
@@ -68,14 +124,14 @@ export class  App extends React.Component {
 
         let newBoard = [...this.state.board];
 
-        newBoard[i][j] = this.state.turn;
-        newBoard[this.state.selected.x][this.state.selected.y] = -1;
+        newBoard[i][j] = this.getBoardData(this.state.turn);
+        newBoard[this.state.selected.x][this.state.selected.y] = null;
 
         if (Math.abs(i - this.state.selected.x) === 2) {
           let a = (this.state.selected.x + i) / 2;
           let b = (this.state.selected.y + j) / 2;
 
-          newBoard[a][b] = -1;
+          newBoard[a][b] = null;
         }
 
         let opponent = this.getOpponent(this.state.turn);
@@ -97,7 +153,7 @@ export class  App extends React.Component {
       }
     } else {
       // Select the clicked item is possible
-      if (this.state.board[i][j] === this.state.turn) {
+      if (this.state.board[i][j] && this.state.board[i][j].player === this.state.turn) {
 
         let possibleMoves = this.calculatePossibleMove(i, j, this.state.turn);
 
@@ -142,7 +198,8 @@ export class  App extends React.Component {
 
     for (let i = 0; i < 8; i++) {
       for (let j = 0; j < 8; j++) {
-        if (this.state.board[i][j] === player)
+        if (this.state.board[i][j]  &&
+          this.state.board[i][j].player === player)
           allPositions.push({x: i, y: j});
       }
     }
@@ -162,14 +219,16 @@ export class  App extends React.Component {
   } 
 
   checkMovePossible(i, j) {
-    if (this.isCellValid(i, j) && this.state.board[i][j] === -1)
+    if (this.isCellValid(i, j) && this.state.board[i][j] === null)
       return true;
     
     return false;
   }
 
   checkIfOpponent(i, j, player) {
-    if (this.isCellValid(i, j) && this.state.board[i][j] === this.getOpponent(player))
+    if (this.isCellValid(i, j) &&
+        this.state.board[i][j] &&
+        this.state.board[i][j].player === this.getOpponent(player))
       return true;
     
     return false;

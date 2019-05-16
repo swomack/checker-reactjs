@@ -1,23 +1,11 @@
 import './Board.css';
 import React from 'react';
-
+import {Piece} from './Piece'
 
 export class Board extends React.Component {
 
   constructor(props) {
     super(props);
-  }
-
-  renderRedPiece() {
-    return (<svg className='Piece'>
-              <circle cx="25" cy= "25" r="20" stroke="black" strokeWidth="3" fill="red" />
-            </svg>);
-  }
-
-  renderBlackPiece() {
-    return (<svg className='Piece'>
-              <circle cx="25" cy= "25" r="20" stroke="black" strokeWidth="3" fill="Black" />
-            </svg>);
   }
 
   isCellSelected(i, j) {
@@ -44,8 +32,7 @@ export class Board extends React.Component {
           ${this.isCellHighlighted(i, j) ? 'Highlighted' : '' }`} 
           onClick={(e) => { if (!this.props.gameOver) this.props.onBoardClick(i, j)} }>
             {
-              (this.props.board[i][j] === 0 && this.renderBlackPiece()) || 
-              (this.props.board[i][j] === 1 && this.renderRedPiece())
+              this.props.board[i][j] ?  <Piece {...this.props.board[i][j] }/> : ''
             }
           </div>
         );
