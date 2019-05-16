@@ -4,3 +4,9 @@
   flex-direction: row;
   margin: 10px;
 }
+
+.EditContainer {
+  display: flex;
+  flex-direction: column;
+  align-content: left;
+}

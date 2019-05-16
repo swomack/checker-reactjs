@@ -35,12 +35,12 @@ export class Board extends React.Component {
   }
 
   isCellSelected(i, j) {
-    return this.props.selected !== null && this.props.selected.x === i && this.props.selected.y === j;
+    return this.props.selected !== null && this.props.selected.row === i && this.props.selected.column === j;
   }
 
   isCellHighlighted(x, y) {
     for (let i = 0; i < this.props.highlighted.length; i++) {
-      if (this.props.highlighted[i].x === x && this.props.highlighted[i].y === y)
+      if (this.props.highlighted[i].row === x && this.props.highlighted[i].column === y)
         return true;
     }
 

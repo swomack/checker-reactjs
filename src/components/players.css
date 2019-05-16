@@ -1,9 +1,0 @@
-.Players {
-  display: flex;
-  flex-direction: column;
-  align-content: left;
-}
-
-.StartButton {
-  margin: 10px;
-}

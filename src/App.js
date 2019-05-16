@@ -1,31 +1,41 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import './components/Board'
 import { Board } from './components/Board';
 import { GameControllers } from './components/GameControllers';
 import { Player } from './components/Player' 
+import {MessageBanner} from './components/MessageBanner'
 
-const Players = {
+const PlayerType = {
   First: 0,
   Second: 1
 }
 
+
+const GameState = {
+  Stopped: 0,
+  Running: 1,
+  Over: 3
+}
+
 export class  App extends React.Component {
-
-
   constructor(props) {
     super(props);
 
-    this.state = {
-      turn: Players.First,
+    this.state = this.getInitialState();
+  }
+
+  getInitialState() {
+    return {
+      turn: PlayerType.First,
       selected: null,
+      players: ['Player1', 'Player2'],
+      //gameState: GameState.Stopped,
+      gameState: GameState.Over,
       possibleMoves: [],
-      gameOver: true,
       board: this.getDefaultBoard()
     };
   }
-
 
   getDefaultBoard() {
     let board = [
@@ -41,13 +51,13 @@ export class  App extends React.Component {
 
     for (let i = 0; i < 2; i++) {
       for (let j = 0; j < 8; j++) {
-        board[i][j] = this.getBoardData(Players.First);
+        board[i][j] = this.getBoardData(PlayerType.First);
       }
     }
 
     for (let i = 6; i < 8; i++) {
       for (let j = 0; j < 8; j++) {
-        board[i][j] = this.getBoardData(Player.Second);
+        board[i][j] = this.getBoardData(PlayerType.Second);
       }
     }
 
@@ -55,139 +65,132 @@ export class  App extends React.Component {
   }
 
   getBoardData(player) {
-    if (player === Players.First)
-      return this.getNewBlackPiece();
+    if (player === PlayerType.First)
+      return new Player(PlayerType.First, 'Black', 'Red');
     else
-      return this.getNewRedPiece();
-  }
-
-  getNewBlackPiece() {
-    return new Player(
-      Players.First,
-      'Black',
-      'Red'
-    );
-  }
-
-  getNewRedPiece() {
-    return new Player(
-      Players.Second,
-      'Red',
-      'Black'
-    );
-  }
-
-  initializeState() {
-    this.setState({
-      turn: Players.First,
-      selected: null,
-      gameOver: false,
-      possibleMoves: [],
-      board: this.getDefaultBoard()
-    });
+      return new Player(PlayerType.Second, 'Red', 'Black');
   }
   
   render() {
-
     return (
       <div className="App">
-        <GameControllers gameOver={this.state.gameOver} handleGameStart={() => this.handleGameStart()} />
-        <Board onClick = {(i, j) => this.handleBoardClick(i, j)} 
+        <GameControllers  text={this.getGameControllerButtonText()} 
+                          onClick={() => this.onClickGameStart()}
+                          players = {this.state.players}
+                           />
+        <Board onClick = {(row, column) => this.onClickCell(row, column)} 
                 board = {this.state.board} 
-                disabled = {this.state.gameOver} 
+                disabled = {this.state.gameState === GameState.Stopped || this.state.gameState === GameState.Over} 
                 selected = {this.state.selected}
                 highlighted = {this.state.possibleMoves}
-                />
+        />
+        {this.state.gameState === GameState.Over ? (<MessageBanner heading = 'Game Over!' message = "Wins!" />) : ''}
       </div>
     );
   }
 
-  handleBoardClick(i, j) {
-  
-    // Check if any item is selected
+  getGameControllerButtonText() {
+    if (this.state.gameState === GameState.Stopped || this.state.gameState === GameState.Over)
+      return "Start";
+    else
+      return "Stop";
+  }
+
+  onClickCell(row, column) {
+
     if (this.state.selected !== null) {
-
-      if (this.isCellMovable(i, j)) {
-
-        let newBoard = [...this.state.board];
-
-        newBoard[i][j] = this.getBoardData(this.state.turn);
-        newBoard[this.state.selected.x][this.state.selected.y] = null;
-
-        if (Math.abs(i - this.state.selected.x) === 2) {
-          let a = (this.state.selected.x + i) / 2;
-          let b = (this.state.selected.y + j) / 2;
-
-          newBoard[a][b] = null;
-        }
-
-        let opponent = this.getOpponent(this.state.turn);
-
-        this.setState({
-          turn: opponent,
-          possibleMoves: [],
-          board:  newBoard,
-          selected: null
-        });
-
-        let gameOver = this.checkGameOver(opponent);
-
-        if (gameOver !== -1) {
-          this.setState({
-            gameOver: true
-          })
-        }
-      }
+      this.tryToMoveSelectedPiece(row, column);
     } else {
-      // Select the clicked item is possible
-      if (this.state.board[i][j] && this.state.board[i][j].player === this.state.turn) {
+      this.selectPieceToMove(row, column);
+    }
+      
+  }
 
-        let possibleMoves = this.calculatePossibleMove(i, j, this.state.turn);
+  tryToMoveSelectedPiece(row, column) {
+    if (this.isPieceMovable(row, column)) {
 
-        if (possibleMoves.length > 0) {
-          this.setState({
-            selected: {x: i, y: j},
-            possibleMoves: possibleMoves
-          });
-        }
+      let newBoard = [...this.state.board];
+
+      newBoard[row][column] = newBoard[this.state.selected.row][this.state.selected.column];
+      newBoard[this.state.selected.row][this.state.selected.column] = null;
+
+      // Check if it is a capture move
+      if (Math.abs(row - this.state.selected.row) === 2) {
+        let a = (this.state.selected.row + row) / 2;
+        let b = (this.state.selected.column + column) / 2;
+
+        newBoard[a][b] = null;
+      }
+
+      let opponent = this.getOpponent(this.state.turn);
+
+      this.setState({
+        turn: opponent,
+        possibleMoves: [],
+        board:  newBoard,
+        selected: null
+      });
+
+      let gameOver = this.isGameOver(opponent);
+
+      if (gameOver) {
+        this.setState({
+          gameState: GameState.Over
+        });
       }
     }
   }
 
-  isCellMovable(x, y) {
+  selectPieceToMove(row, column) {
+    if (this.isCellSeletable(row, column)) {
+      let possibleMoves = this.calculatePossibleMove(row, column, this.state.turn);
 
+      if (possibleMoves.length > 0) {
+        this.setState({
+          selected: {row, column},
+          possibleMoves: possibleMoves
+        });
+      }
+    }
+  }
+
+  isPieceMovable(row, column) {
     for (let i = 0; i < this.state.possibleMoves.length; i++) {
-      if (this.state.possibleMoves[i].x === x && this.state.possibleMoves[i].y === y)
+      if (this.state.possibleMoves[i].row === row && this.state.possibleMoves[i].column === column)
         return true;
     }
 
     return false;
   }
 
-  checkGameOver(player) {
-    let allPositions = this.getAllPositionOfPlayer(player);
-  
-    if (allPositions.length <= 0)
-      return this.getOpponent(player);
-
-    for (let i = 0; i < allPositions.length; i++) {
-      let possibleMoves = this.calculatePossibleMove(allPositions[i].x, allPositions[i].y, player);
-
-      if (possibleMoves.length > 0)
-        return -1;
-    }
-    
-    return this.getOpponent(player);
+  isCellSeletable(row, column) {
+    return this.state.board[row][column] && this.state.board[row][column].player === this.state.turn;
   }
 
-  getAllPositionOfPlayer(player) {
+  isGameOver(player) {
+    let allPiecesPositions = this.getAllPiecesPosition(player);
+  
+    if (allPiecesPositions.length <= 0)
+      return this.getOpponent(player);
+
+    for (let i = 0; i < allPiecesPositions.length; i++) {
+      let possibleMoves = this.calculatePossibleMove(allPiecesPositions[i].row, allPiecesPositions[i].column, player);
+
+      if (possibleMoves.length > 0)
+        return false;
+    }
+    
+    return true;
+  }
+
+  getAllPiecesPosition(player) {
     let allPositions = [];
 
     for (let i = 0; i < 8; i++) {
       for (let j = 0; j < 8; j++) {
         if (this.state.board[i][j]  &&
           this.state.board[i][j].player === player)
-          allPositions.push({x: i, y: j});
+          allPositions.push({row: i, column: j});
       }
     }
 
@@ -198,73 +201,70 @@ export class  App extends React.Component {
     return (player + 1) % 2;
   }
 
-  isCellValid(i, j) {
-    if (i >= 0 && i < 8 && j >= 0 && j < 8)
+  isCellValid(row, column) {
+    if (row >= 0 && row < 8 && column >= 0 && column < 8)
       return true;
     
     return false;
   } 
 
-  checkMovePossible(i, j) {
-    if (this.isCellValid(i, j) && this.state.board[i][j] === null)
+  isMovePossible(row, column) {
+    if (this.isCellValid(row, column) && this.state.board[row][column] === null)
       return true;
     
     return false;
   }
 
-  checkIfOpponent(i, j, player) {
-    if (this.isCellValid(i, j) &&
-        this.state.board[i][j] &&
-        this.state.board[i][j].player === this.getOpponent(player))
+  isOpponentPiece(row, column, player) {
+    if (this.isCellValid(row, column) &&
+        this.state.board[row][column] &&
+        this.state.board[row][column].player === this.getOpponent(player))
       return true;
     
     return false;
   }
 
-  calculatePossibleMove(i, j, player) {
+  calculatePossibleMove(row, column, player) {
 
     let possibleMoves = [];
+    let getMovableCells = this.getMovableCells(row, column, player);
 
-    if (player === 0) {
-      if (this.checkMovePossible(i + 1, j - 1)) {
-        possibleMoves.push({x: i + 1, y: j - 1});
-      } else if (this.checkIfOpponent(i + 1, j - 1, player)) {
-        if (this.checkMovePossible(i + 2, j - 2)) {
-          possibleMoves.push({x: i + 2, y: j - 2});
+    getMovableCells.forEach(({row: destRow, column: destColumn}) => {
+      if (this.isMovePossible(destRow, destColumn)) {
+        possibleMoves.push({row: destRow, column: destColumn});
+      } else if (this.isOpponentPiece(destRow, destColumn, player)) {
+        if (this.isMovePossible(destRow + (destRow - row), destColumn + (destColumn - column))) {
+          possibleMoves.push({row: destRow + (destRow - row), column: destColumn + (destColumn - column)});
         }
       }
-
-      if (this.checkMovePossible(i + 1, j + 1)) {
-        possibleMoves.push({x: i + 1, y: j + 1});
-      } else if (this.checkIfOpponent(i + 1, j + 1, player)) {
-        if (this.checkMovePossible(i + 2, j + 2)) {
-          possibleMoves.push({x: i + 2, y: j + 2});
-        }
-      }
-    } else {
-
-      if (this.checkMovePossible(i - 1, j - 1)) {
-        possibleMoves.push({x: i - 1, y: j - 1});
-      } else if (this.checkIfOpponent(i - 1, j - 1, player)) {
-        if (this.checkMovePossible(i - 2, j - 2)) {
-          possibleMoves.push({x: i - 2, y: j - 2});
-        }
-      }
-
-      if (this.checkMovePossible(i - 1, j + 1)) {
-        possibleMoves.push({x: i - 1, y: j + 1});
-      } else if (this.checkIfOpponent(i - 1, j + 1, player)) {
-        if (this.checkMovePossible(i - 2, j + 2)) {
-          possibleMoves.push({x: i - 2, y: j + 2});
-        }
-      }
-    }
+    });
 
     return possibleMoves;
   }
 
-  handleGameStart() {
-    this.initializeState();
+  getMovableCells(row, column, player) {
+    let cells = [];
+    if (player === PlayerType.First) {
+      cells.push({row: row + 1, column: column - 1});
+      cells.push({row: row + 1, column: column + 1});
+    } else {
+      cells.push({row: row - 1, column: column - 1});
+      cells.push({row: row - 1, column: column + 1});
+    }
+
+    return cells;
+  }
+
+  onClickGameStart() {
+    if (this.state.gameState === GameState.Stopped || this.state.gameState === GameState.Over) {
+      let state = this.getInitialState();
+      state.gameState = GameState.Running;
+      this.setState(state);
+    } else {
+      let state = this.getInitialState();
+      state.gameState = GameState.Stopped;
+      this.setState(state);
+    }
   }
   
 }
