@@ -1,4 +1,4 @@
-This is a very simple implementation of check game with following restrictions -
+This is a very simple implementation of checker game with following restrictions -
 
 - No capturing moves.
 - No kings. When a piece reaches the end of the board it’s done and it stays in that position
