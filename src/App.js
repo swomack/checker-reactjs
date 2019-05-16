@@ -50,7 +50,11 @@ export class  App extends React.Component {
     return (
       <div className="App">
         <GameControllers gameOver={this.state.gameOver} handleGameStart={() => this.handleGameStart()} />
-        <Board onBoardClick = {(i, j) => this.handleBoardClick(i, j)} board = {this.state.board} disabled = {this.state.gameOver} selected = {this.state.selected} />
+        <Board onBoardClick = {(i, j) => this.handleBoardClick(i, j)} 
+                board = {this.state.board} 
+                disabled = {this.state.gameOver} 
+                selected = {this.state.selected}
+                highlighted = {this.state.possibleMoves} />
       </div>
     );
   }

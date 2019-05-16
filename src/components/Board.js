@@ -19,14 +19,21 @@ export class Board extends React.Component {
               <circle cx="25" cy= "25" r="20" stroke="black" strokeWidth="3" fill="Black" />
             </svg>);
   }
-  
+
   isCellSelected(i, j) {
     return this.props.selected !== null && this.props.selected.x === i && this.props.selected.y === j;
   }
 
-  render() {
+  isCellHighlighted(x, y) {
+    for (let i = 0; i < this.props.highlighted.length; i++) {
+      if (this.props.highlighted[i].x === x && this.props.highlighted[i].y === y)
+        return true;
+    }
 
-    //${this.isCellMovable(i, j) ? 'Movable' : '' }
+    return false;
+  }
+
+  render() {
     let tiles = [];
 
     for (let i = 0; i < 8; i++) {
@@ -34,7 +41,7 @@ export class Board extends React.Component {
         tiles.push(
           <div key={`Tile-${i}-${j}`} className={`Tile ${i % 2 == j % 2 ? 'RedTile' : 'WhiteTile'} 
           ${this.isCellSelected(i, j) ? 'Selected ' : '' } 
-          `} 
+          ${this.isCellHighlighted(i, j) ? 'Highlighted' : '' }`} 
           onClick={(e) => { if (!this.props.gameOver) this.props.onBoardClick(i, j)} }>
             {
               (this.props.board[i][j] === 0 && this.renderBlackPiece()) || 
