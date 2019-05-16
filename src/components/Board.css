@@ -18,25 +18,3 @@
   opacity: 0.5;
 }
 
-.Tile {
-  width: 50px;
-  padding-bottom: 50px;
-  float: left;
-  position: relative;
-}
-
-.WhiteTile {
-  background: white;
-}
-
-.RedTile {
-  background: grey;
-}
-
-.Selected {
-  box-shadow:inset 0px 0px 0px 10px #ff54ff;
-}
-
-.Highlighted {
-  box-shadow:inset 0px 0px 0px 25px #564132;
-}

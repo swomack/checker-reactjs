@@ -22,29 +22,36 @@ export class  App extends React.Component {
       selected: null,
       possibleMoves: [],
       gameOver: true,
-      board: [
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null]
-      ]
+      board: this.getDefaultBoard()
     };
+  }
+
+
+  getDefaultBoard() {
+    let board = [
+      [null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null, null]
+    ]
 
     for (let i = 0; i < 2; i++) {
       for (let j = 0; j < 8; j++) {
-        this.state.board[i][j] = this.getBoardData(Players.First);
+        board[i][j] = this.getBoardData(Players.First);
       }
     }
 
     for (let i = 6; i < 8; i++) {
       for (let j = 0; j < 8; j++) {
-        this.state.board[i][j] = this.getBoardData(Player.Second);
+        board[i][j] = this.getBoardData(Player.Second);
       }
     }
+
+    return board;
   }
 
   getBoardData(player) {
@@ -74,30 +81,10 @@ export class  App extends React.Component {
     this.setState({
       turn: Players.First,
       selected: null,
+      gameOver: false,
       possibleMoves: [],
-      board: [
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null],
-        [null, null, null, null, null, null, null, null]
-      ]
+      board: this.getDefaultBoard()
     });
-
-    for (let i = 0; i < 2; i++) {
-      for (let j = 0; j < 8; j++) {
-        this.state.board[i][j] = this.getBoardData(Players.First);
-      }
-    }
-
-    for (let i = 6; i < 8; i++) {
-      for (let j = 0; j < 8; j++) {
-        this.state.board[i][j] = this.getBoardData(Player.Second);
-      }
-    }
   }
   
   render() {
@@ -105,7 +92,7 @@ export class  App extends React.Component {
     return (
       <div className="App">
         <GameControllers gameOver={this.state.gameOver} handleGameStart={() => this.handleGameStart()} />
-        <Board onBoardClick = {(i, j) => this.handleBoardClick(i, j)} 
+        <Board onClick = {(i, j) => this.handleBoardClick(i, j)} 
                 board = {this.state.board} 
                 disabled = {this.state.gameOver} 
                 selected = {this.state.selected}
@@ -277,10 +264,7 @@ export class  App extends React.Component {
   }
 
   handleGameStart() {
-    console.log("Something")
-    this.setState({
-      gameOver: false
-    });
+    this.initializeState();
   }
   
 }

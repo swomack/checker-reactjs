@@ -1,6 +1,32 @@
 import './Board.css';
 import React from 'react';
-import {Piece} from './Piece'
+import {Piece} from './Piece';
+import { Square } from './square'; 
+
+
+const TileStyle = {
+  width: '50px',
+  paddingBottom: '50px',
+  float: 'left',
+  position: 'relative'
+};
+
+const WhiteTile = {
+  background: 'white',
+}
+
+const GreyTile = {
+  background: 'grey'
+}
+
+const SelectedTile = {
+  boxShadow: 'inset 0px 0px 0px 10px #ff54ff'
+}
+
+const HighlightedTile = {
+  boxShadow: 'inset 0px 0px 0px 25px #564132'
+}
+
 
 export class Board extends React.Component {
 
@@ -21,20 +47,39 @@ export class Board extends React.Component {
     return false;
   }
 
+  getStyleFromRowColumn(row, column) {
+    let style = {...TileStyle};
+
+    if (row % 2 === column % 2)
+      style = {...style, ...GreyTile};
+    else
+      style = {...style, ...WhiteTile};
+      
+    if (this.isCellSelected(row, column))
+      style = {...style, ...SelectedTile};
+
+    if (this.isCellHighlighted(row, column))
+      style = {...style, ...HighlightedTile};
+
+    return style;
+  }
+
   render() {
     let tiles = [];
 
     for (let i = 0; i < 8; i++) {
       for (let j = 0; j < 8; j++) {
         tiles.push(
-          <div key={`Tile-${i}-${j}`} className={`Tile ${i % 2 == j % 2 ? 'RedTile' : 'WhiteTile'} 
-          ${this.isCellSelected(i, j) ? 'Selected ' : '' } 
-          ${this.isCellHighlighted(i, j) ? 'Highlighted' : '' }`} 
-          onClick={(e) => { if (!this.props.gameOver) this.props.onBoardClick(i, j)} }>
-            {
-              this.props.board[i][j] ?  <Piece {...this.props.board[i][j] }/> : ''
-            }
-          </div>
+
+          <Square key={`Tile-${i}-${j}`}
+                  style = {this.getStyleFromRowColumn(i, j)}
+                  onClick = {(e, row , column) => this.props.onClick(row, column)}
+                  row = {i}
+                  column = {j}>
+                  {
+                    this.props.board[i][j] ? <Piece {...this.props.board[i][j] }/> : ''
+                  }
+          </Square>
         );
       }
     }
