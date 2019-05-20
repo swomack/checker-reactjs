@@ -7,6 +7,10 @@ This is a very simple implementation of checker game with following restrictions
 
 In the project directory, you can run:
 
+npm install
+
+This will install the dependencies. After that you can build and run and the app using following commands -
+
 ### `npm start`
 
 Runs the app in the development mode.<br>
