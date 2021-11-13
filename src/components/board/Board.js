@@ -143,7 +143,7 @@ function Board(props) {
     let allPiecesPositions = getAllPiecesPosition(player);
   
     if (allPiecesPositions.length <= 0)
-      return getOpponent(player);
+      return true;
 
     for (let i = 0; i < allPiecesPositions.length; i++) {
       const possibleMoves = calculatePossibleMove(allPiecesPositions[i].row, allPiecesPositions[i].column, player);
