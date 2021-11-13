@@ -1,95 +1,89 @@
-import './Board.css';
-import React from 'react';
-import {Piece} from '../piece/Piece';
-import { Square } from '../square/square'; 
-
+import "./Board.css";
+import React from "react";
+import Piece from "../piece/Piece";
+import Square from "../square/square";
 
 const TileStyle = {
-  width: '50px',
-  paddingBottom: '50px',
-  float: 'left',
-  position: 'relative'
+  width: "50px",
+  paddingBottom: "50px",
+  float: "left",
+  position: "relative",
 };
 
 const WhiteTile = {
-  background: 'white',
-}
+  background: "white",
+};
 
 const GreyTile = {
-  background: 'grey'
-}
+  background: "grey",
+};
 
 const SelectedTile = {
-  boxShadow: 'inset 0px 0px 0px 10px #ff54ff'
-}
+  boxShadow: "inset 0px 0px 0px 10px #ff54ff",
+};
 
 const HighlightedTile = {
-  boxShadow: 'inset 0px 0px 0px 25px #564132'
-}
+  boxShadow: "inset 0px 0px 0px 25px #564132",
+};
 
+function Board(props) {
+  const isCellSelected = (i, j) => {
+    return (
+      props.selected !== null &&
+      props.selected.row === i &&
+      props.selected.column === j
+    );
+  };
 
-export class Board extends React.Component {
-
-  constructor(props) {
-    super(props);
-  }
-
-  isCellSelected(i, j) {
-    return this.props.selected !== null && this.props.selected.row === i && this.props.selected.column === j;
-  }
-
-  isCellHighlighted(x, y) {
-    for (let i = 0; i < this.props.highlighted.length; i++) {
-      if (this.props.highlighted[i].row === x && this.props.highlighted[i].column === y)
+  const isCellHighlighted = (x, y) => {
+    for (let i = 0; i < props.highlighted.length; i++) {
+      if (props.highlighted[i].row === x && props.highlighted[i].column === y)
         return true;
     }
 
     return false;
-  }
+  };
 
-  getStyleFromRowColumn(row, column) {
-    let style = {...TileStyle};
+  const getStyleFromRowColumn = (row, column) => {
+    let style = { ...TileStyle };
 
-    if (row % 2 === column % 2)
-      style = {...style, ...GreyTile};
-    else
-      style = {...style, ...WhiteTile};
-      
-    if (this.isCellSelected(row, column))
-      style = {...style, ...SelectedTile};
+    if (row % 2 === column % 2) style = { ...style, ...GreyTile };
+    else style = { ...style, ...WhiteTile };
 
-    if (this.isCellHighlighted(row, column))
-      style = {...style, ...HighlightedTile};
+    if (isCellSelected(row, column)) style = { ...style, ...SelectedTile };
+
+    if (isCellHighlighted(row, column))
+      style = { ...style, ...HighlightedTile };
+
+    
+    console.log(JSON.stringify(style));      
 
     return style;
-  }
+  };
 
-  render() {
-    let tiles = [];
+  const tiles = [];
 
-    for (let i = 0; i < 8; i++) {
-      for (let j = 0; j < 8; j++) {
-        tiles.push(
-
-          <Square key={`Tile-${i}-${j}`}
-                  style = {this.getStyleFromRowColumn(i, j)}
-                  onClick = {(e, row , column) => this.props.onClick(row, column)}
-                  row = {i}
-                  column = {j}>
-                  {
-                    this.props.board[i][j] ? <Piece {...this.props.board[i][j] }/> : ''
-                  }
-          </Square>
-        );
-      }
+  for (let i = 0; i < 8; i++) {
+    for (let j = 0; j < 8; j++) {
+      tiles.push(
+        <Square
+          key={`Tile-${i}-${j}`}
+          style={getStyleFromRowColumn(i, j)}
+          onClick={(e, row, column) => props.onClick(row, column)}
+          row={i}
+          column={j}
+        >
+          {props.board[i][j] ? <Piece {...props.board[i][j]} /> : ""}
+        </Square>
+      );
     }
-
-    return (
-      <div>
-        <div className={`Board ${this.props.disabled ? 'Disabled' : ''}`}>
-          {tiles}
-        </div>
-      </div>
-    );
   }
+
+  return (
+    <div>
+      <div className={`Board ${props.disabled ? "Disabled" : ""}`}>{tiles}</div>
+    </div>
+  );
 }
+
+export default Board;

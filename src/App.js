@@ -1,10 +1,10 @@
 import React from 'react';
 import './App.css';
 import './components/board/Board.css'
-import { Board } from './components/board/Board';
-import { GameControllers } from './components/gameControllers/GameControllers';
+import Board from './components/board/Board';
+import GameControllers from './components/gameControllers/GameControllers';
 import { Player } from './player/Player' 
-import { MessageBanner } from './components/messageBanner/MessageBanner'
+import MessageBanner from './components/messageBanner/MessageBanner'
 import { Status } from './components/status/Status'
 
 const PlayerType = {
