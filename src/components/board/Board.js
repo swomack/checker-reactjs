@@ -1,10 +1,9 @@
 import "./Board.css";
-import React, { useState } from "react";
+import React from "react";
 import Piece from "../piece/Piece";
 import Square from "../square/square";
-import MessageBanner from '../messageBanner/MessageBanner'
 import Status from '../status/Status'
-import { PlayerType, GameCurrentState, TurnIndicatorStyle } from '../../enums';
+import { PlayerType, TurnIndicatorStyle } from '../../enums';
 
 
 const TileStyle = {
@@ -33,7 +32,7 @@ const HighlightedTile = {
 
 function Board(props) {
 
-  const {gameState, gameLogic, boardRowSize, boardColumnSize, updateGameState} = props;
+  const {gameState, boardRowSize, boardColumnSize, onCellClickHanlder} = props;
   
 
   const getStyleFromRowColumn = (row, column) => {
@@ -42,9 +41,9 @@ function Board(props) {
     if (row % 2 === column % 2) style = { ...style, ...GreyTile };
     else style = { ...style, ...WhiteTile };
 
-    if (gameLogic.isCellSelected(row, column)) style = { ...style, ...SelectedTile };
+    if (gameState.isCellSelected(row, column)) style = { ...style, ...SelectedTile };
 
-    if (gameLogic.isCellHighlighted(row, column))
+    if (gameState.isCellHighlighted(row, column))
       style = { ...style, ...HighlightedTile };
 
     return style;
@@ -59,12 +58,7 @@ function Board(props) {
           key={`Tile-${i}-${j}`}
           style={getStyleFromRowColumn(i, j)}
           onClick={(e, row, column) => {
-              gameLogic.trySelectCell(row, column);
-              updateGameState(gameState);
-
-              if (gameLogic.gameState === GameCurrentState.Over) {
-                props.onGameFinished();
-              }
+              onCellClickHanlder(row, column);
             }
           }
           row={i}
@@ -86,9 +80,7 @@ function Board(props) {
     <div>
       <Status style = {statusStyle}/>
       <div className={"Board"}>{tiles}</div>
-      {gameState.gameCurrentState === GameCurrentState.Over ? (
-        <MessageBanner heading = 'Game Over!' message = {`${gameLogic.getOpponent(gameState.turn)} Wins!!`} />) : ''
-      }
+      
     </div>
   );
 }
