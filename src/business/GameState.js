@@ -1,14 +1,13 @@
 import Player from '../player/Player';
-import {PlayerType, GameCurrentState} from "../enums";
+import {PlayerType} from "../enums";
 
 class GameState {
     constructor(totalRow, totalColumn, gameStateObj) {
-      const {board, gameCurrentState, possibleMoves, selected, turn} = gameStateObj || {};
+      const {board, possibleMoves, selectedCell, turn} = gameStateObj || {};
 
       this.board = board || this.getDefaultBoard(totalRow, totalColumn);
-      this.gameCurrentState = gameCurrentState || GameCurrentState.Running;
       this.possibleMoves = possibleMoves || [];
-      this.selected = selected || null;
+      this.selectedCell = selectedCell || null;
       this.turn = turn || PlayerType.First;
     }
   
@@ -39,9 +38,9 @@ class GameState {
 
     isCellSelected(row, column) {
       return (
-        this.selected !== null &&
-        this.selected.row === row &&
-        this.selected.column === column
+        this.selectedCell !== null &&
+        this.selectedCell.row === row &&
+        this.selectedCell.column === column
       );
     }
   

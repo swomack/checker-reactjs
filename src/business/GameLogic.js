@@ -118,12 +118,12 @@ class GameLogic {
   }
 
   trySelectCell(row, column) {
-    if (this.gameState.selected !== null) {
+    if (this.gameState.selectedCell !== null) {
       if (
-        this.gameState.selected.row === row &&
-        this.gameState.selected.column === column
+        this.gameState.selectedCell.row === row &&
+        this.gameState.selectedCell.column === column
       ) {
-        this.gameState.selected = null;
+        this.gameState.selectedCell = null;
         this.gameState.possibleMoves = [];
 
         return;
@@ -139,13 +139,13 @@ class GameLogic {
     if (this.isPieceMovable(row, column)) {
       const newBoard = this.gameState.board.map((element) => element.slice());
 
-      newBoard[row][column] = newBoard[this.gameState.selected.row][this.gameState.selected.column];
-      newBoard[this.gameState.selected.row][this.gameState.selected.column] = null;
+      newBoard[row][column] = newBoard[this.gameState.selectedCell.row][this.gameState.selectedCell.column];
+      newBoard[this.gameState.selectedCell.row][this.gameState.selectedCell.column] = null;
   
       // Check if it is a capture move
-      if (Math.abs(row - this.gameState.selected.row) === 2) {
-        const a = (this.gameState.selected.row + row) / 2;
-        const b = (this.gameState.selected.column + column) / 2;
+      if (Math.abs(row - this.gameState.selectedCell.row) === 2) {
+        const a = (this.gameState.selectedCell.row + row) / 2;
+        const b = (this.gameState.selectedCell.column + column) / 2;
   
         newBoard[a][b] = null;
       }
@@ -155,7 +155,7 @@ class GameLogic {
       this.gameState.turn = opponent;
       this.gameState.possibleMoves = [];
       this.gameState.board = newBoard;
-      this.gameState.selected = null;
+      this.gameState.selectedCell = null;
     }
   }
 
@@ -180,7 +180,7 @@ class GameLogic {
       );
 
       if (possibleMoves.length > 0) {
-        this.gameState.selected = { row, column };
+        this.gameState.selectedCell = { row, column };
         this.gameState.possibleMoves = possibleMoves;
       }
     }
