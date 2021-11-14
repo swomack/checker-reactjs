@@ -6,7 +6,7 @@ import GameSteps from '../gameSteps/GameSteps';
 import MessageBanner from '../messageBanner/MessageBanner';
 import Timer from '../timer/Timer';
 
-import GameState from "../../business/GameState";
+import getInitialGameState from "../../business/GameState";
 import GameLogic from "../../business/GameLogic";
 
 function GameApp() {
@@ -14,7 +14,7 @@ function GameApp() {
   const boardRowSize = 8;
   const boardColumnSize = 8;
 
-  const [currentGameState, setCurrentGameState] = useState(new GameState(boardRowSize, boardColumnSize));
+  const [currentGameState, setCurrentGameState] = useState(getInitialGameState(boardRowSize, boardColumnSize));
   const [history, setHistory] = useState([])
   const [winner, setWinner] = useState('');
   const [started, setStarted] = useState(false);
@@ -32,7 +32,7 @@ function GameApp() {
 
     if (!started) {
       setHistory([]);
-      setCurrentGameState(new GameState(boardRowSize, boardColumnSize));
+      setCurrentGameState(getInitialGameState(boardRowSize, boardColumnSize));
       setWinner('');
     }
     setStarted((prevState) => !prevState);
@@ -41,9 +41,10 @@ function GameApp() {
  
   return (
     <div className="GameApp">
-      <GameControllers  text={started ? "Stop" : "Start"} 
+      <GameControllers  text={started ? "Stop the current game" : "Start a new game"} 
                         onClick={() => changeGameState()}
                         players={players}/>
+
       { started && <button onClick={() => gameFinished()}>Finish</button>}
       { winner && 
         <MessageBanner heading = 'Game Over!' message = {`${winner} Wins!!`} />
@@ -53,8 +54,8 @@ function GameApp() {
 
       {started && <Board
         gameState={currentGameState}
-        boardRowSize={boardRowSize}
-        boardColumnSize={boardColumnSize}
+        isCellSelected={(row, column) => gameLogic.isCellSelected(row, column)}
+        isCellHighlighted={(row, column) => gameLogic.isCellHighlighted(row, column)}
         winner={winner}
         onCellClickHanlder={(row, column) => {
 
@@ -62,13 +63,12 @@ function GameApp() {
 
           gameLogic.trySelectCell(row, column);
 
-          const newState = new GameState(boardRowSize, boardColumnSize, {...(gameLogic.gameState)});
+          const newState = {...gameLogic.gameState};
 
           if (newState.turn !== previousTurn) {
-            setHistory([...history, 
-              new GameState(boardRowSize, boardColumnSize, {...newState, 
+            setHistory([...history, {...newState, 
                 board: newState.board.map((element) => element.slice())
-              })]);
+              }]);
           }
           
           setCurrentGameState(newState);
@@ -81,7 +81,7 @@ function GameApp() {
       }
       {
          started && <GameSteps gameSteps={history} restoreHistory={(index) => {
-          setCurrentGameState(new GameState(boardRowSize, boardColumnSize, {...(history[index])}));
+          setCurrentGameState({...history[index]});
           setHistory(history.slice(0, index));
           }} />
       }

@@ -32,7 +32,7 @@ const HighlightedTile = {
 
 function Board(props) {
 
-  const {gameState, boardRowSize, boardColumnSize, onCellClickHanlder} = props;
+  const {gameState, onCellClickHanlder, isCellSelected, isCellHighlighted} = props;
   
 
   const getStyleFromRowColumn = (row, column) => {
@@ -41,34 +41,37 @@ function Board(props) {
     if (row % 2 === column % 2) style = { ...style, ...GreyTile };
     else style = { ...style, ...WhiteTile };
 
-    if (gameState.isCellSelected(row, column)) style = { ...style, ...SelectedTile };
+    if (isCellSelected(row, column)) style = { ...style, ...SelectedTile };
 
-    if (gameState.isCellHighlighted(row, column))
+    if (isCellHighlighted(row, column))
       style = { ...style, ...HighlightedTile };
 
     return style;
   };
 
-  const tiles = [];
-
-  for (let i = 0; i < boardRowSize; i++) {
-    for (let j = 0; j < boardColumnSize; j++) {
-      tiles.push(
-        <Square
-          key={`Tile-${i}-${j}`}
-          style={getStyleFromRowColumn(i, j)}
-          onClick={(e, row, column) => {
+  const renderSquares = () => {
+    const squares = gameState.board.map((row, i) =>
+      row.map((element, j) => {
+        return (
+          <Square
+            key={`Tile-${i}-${j}`}
+            style={getStyleFromRowColumn(i, j)}
+            onClick={(e, row, column) => {
               onCellClickHanlder(row, column);
-            }
-          }
-          row={i}
-          column={j}
-        >
-          {gameState.board[i][j] ? <Piece {...(gameState.board[i][j])} /> : ""}
-        </Square>
-      );
-    }
-  }
+            }}
+            row={i}
+            column={j}
+          >
+            {element && <Piece {...element} />}
+          </Square>
+        );
+      })
+    );
+
+    return squares;
+  };
+
+  
 
   const statusStyle = {...TurnIndicatorStyle};
     if (gameState.turn === PlayerType.Second)
@@ -79,7 +82,9 @@ function Board(props) {
   return (
     <div>
       <Status style = {statusStyle}/>
-      <div className={"Board"}>{tiles}</div>
+      <div className={"Board"}>
+        {renderSquares()}
+      </div>
       
     </div>
   );

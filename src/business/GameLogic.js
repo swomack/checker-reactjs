@@ -137,24 +137,23 @@ class GameLogic {
 
   tryToMoveSelectedPiece(row, column) {
     if (this.isPieceMovable(row, column)) {
-      const newBoard = this.gameState.board.map((element) => element.slice());
+      const gameBoard = this.gameState.board;
 
-      newBoard[row][column] = newBoard[this.gameState.selectedCell.row][this.gameState.selectedCell.column];
-      newBoard[this.gameState.selectedCell.row][this.gameState.selectedCell.column] = null;
+      gameBoard[row][column] = gameBoard[this.gameState.selectedCell.row][this.gameState.selectedCell.column];
+      gameBoard[this.gameState.selectedCell.row][this.gameState.selectedCell.column] = null;
   
       // Check if it is a capture move
       if (Math.abs(row - this.gameState.selectedCell.row) === 2) {
         const a = (this.gameState.selectedCell.row + row) / 2;
         const b = (this.gameState.selectedCell.column + column) / 2;
   
-        newBoard[a][b] = null;
+        gameBoard[a][b] = null;
       }
   
       const opponent = this.getOpponent(this.gameState.turn);
   
       this.gameState.turn = opponent;
       this.gameState.possibleMoves = [];
-      this.gameState.board = newBoard;
       this.gameState.selectedCell = null;
     }
   }
@@ -191,6 +190,23 @@ class GameLogic {
       this.gameState.board[row][column] &&
       this.gameState.board[row][column].player === this.gameState.turn
     );
+  }
+
+  isCellSelected(row, column) {
+    return (
+      this.gameState.selectedCell !== null &&
+      this.gameState.selectedCell.row === row &&
+      this.gameState.selectedCell.column === column
+    );
+  }
+
+  isCellHighlighted(row, column) {
+    for (let i = 0; i < this.gameState.possibleMoves.length; i++) {
+      if (this.gameState.possibleMoves[i].row === row && this.gameState.possibleMoves[i].column === column)
+        return true;
+    }
+
+    return false;
   }
 }
 
