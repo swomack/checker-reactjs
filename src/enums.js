@@ -3,7 +3,7 @@ export const PlayerType = {
     Second: 1
 }
 
-export const GameState = {
+export const GameCurrentState = {
     Stopped: 0,
     Running: 1,
     Over: 3
