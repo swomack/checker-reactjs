@@ -6,7 +6,6 @@ import MessageBanner from '../messageBanner/MessageBanner'
 import Status from '../status/Status'
 import { PlayerType, GameCurrentState, TurnIndicatorStyle } from '../../enums';
 
-import GameState from "../../business/GameState";
 import GameLogic from "../../business/GameLogic";
 
 
@@ -36,16 +35,8 @@ const HighlightedTile = {
 
 function Board(props) {
 
-  const boardRowSize = 8;
-  const boardColumnSize = 8;
-
-  const [gameState, setGameState] = useState(new GameState(boardRowSize, boardColumnSize))
+  const {gameState, boardRowSize, boardColumnSize, updateGameState} = props;
   const gameLogic = new GameLogic(boardRowSize, boardColumnSize, gameState);
- 
-
-  const updateAllState = () => {
-    setGameState({...gameState});
-  }
 
   const getStyleFromRowColumn = (row, column) => {
     let style = { ...TileStyle };
@@ -71,7 +62,7 @@ function Board(props) {
           style={getStyleFromRowColumn(i, j)}
           onClick={(e, row, column) => {
               gameLogic.trySelectCell(row, column);
-              updateAllState();
+              updateGameState(gameState);
 
               if (gameLogic.gameState === GameCurrentState.Over) {
                 props.onGameFinished();

@@ -2,10 +2,15 @@ import React, {useState} from 'react';
 import './GameApp.css';
 import Board from '../board/Board';
 import GameControllers from '../gameControllers/GameControllers';
+import GameState from "../../business/GameState";
 
 
 function GameApp() {
 
+  const boardRowSize = 8;
+  const boardColumnSize = 8;
+
+  const [gameState, setGameState] = useState(new GameState(boardRowSize, boardColumnSize))
   const [started, setStarted] = useState(false);
   const players = ["Player1", "Player2"];
  
@@ -22,7 +27,13 @@ function GameApp() {
       <GameControllers  text={started ? "Stop" : "Start"} 
                         onClick={() => changeGameState()}
                         players={players}/>
-      {started && <Board onGameFinished={() => gameFinished()} />}
+      {started && <Board
+        gameState={gameState}
+        boardRowSize={boardRowSize}
+        boardColumnSize={boardColumnSize}
+        updateGameState={(updatedGameState) => setGameState({...updatedGameState})}
+        onGameFinished={() => gameFinished()} />
+      }
     </div>
   );
 }
