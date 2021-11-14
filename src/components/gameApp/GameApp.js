@@ -3,7 +3,8 @@ import './GameApp.css';
 import Board from '../board/Board';
 import GameControllers from '../gameControllers/GameControllers';
 import GameSteps from '../gameSteps/GameSteps';
-import MessageBanner from '../messageBanner/MessageBanner'
+import MessageBanner from '../messageBanner/MessageBanner';
+import Timer from '../timer/Timer';
 
 import GameState from "../../business/GameState";
 import GameLogic from "../../business/GameLogic";
@@ -43,9 +44,12 @@ function GameApp() {
       <GameControllers  text={started ? "Stop" : "Start"} 
                         onClick={() => changeGameState()}
                         players={players}/>
+      { started && <button onClick={() => gameFinished()}>Finish</button>}
       { winner && 
         <MessageBanner heading = 'Game Over!' message = {`${winner} Wins!!`} />
       }
+
+      { started && <Timer /> }
 
       {started && <Board
         gameState={currentGameState}
