@@ -3,6 +3,7 @@ import './GameApp.css';
 import Board from '../board/Board';
 import GameControllers from '../gameControllers/GameControllers';
 import GameState from "../../business/GameState";
+import GameLogic from "../../business/GameLogic";
 
 
 function GameApp() {
@@ -13,6 +14,7 @@ function GameApp() {
   const [gameState, setGameState] = useState(new GameState(boardRowSize, boardColumnSize))
   const [started, setStarted] = useState(false);
   const players = ["Player1", "Player2"];
+  const gameLogic = new GameLogic(boardRowSize, boardColumnSize, gameState);
  
   const gameFinished = () => {
     setStarted(false);
@@ -29,6 +31,7 @@ function GameApp() {
                         players={players}/>
       {started && <Board
         gameState={gameState}
+        gameLogic={gameLogic}
         boardRowSize={boardRowSize}
         boardColumnSize={boardColumnSize}
         updateGameState={(updatedGameState) => setGameState({...updatedGameState})}

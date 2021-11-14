@@ -6,8 +6,6 @@ import MessageBanner from '../messageBanner/MessageBanner'
 import Status from '../status/Status'
 import { PlayerType, GameCurrentState, TurnIndicatorStyle } from '../../enums';
 
-import GameLogic from "../../business/GameLogic";
-
 
 const TileStyle = {
   width: "50px",
@@ -35,8 +33,8 @@ const HighlightedTile = {
 
 function Board(props) {
 
-  const {gameState, boardRowSize, boardColumnSize, updateGameState} = props;
-  const gameLogic = new GameLogic(boardRowSize, boardColumnSize, gameState);
+  const {gameState, gameLogic, boardRowSize, boardColumnSize, updateGameState} = props;
+  
 
   const getStyleFromRowColumn = (row, column) => {
     let style = { ...TileStyle };
@@ -54,8 +52,8 @@ function Board(props) {
 
   const tiles = [];
 
-  for (let i = 0; i < gameLogic.boardRowSize; i++) {
-    for (let j = 0; j < gameLogic.boardColumnSize; j++) {
+  for (let i = 0; i < boardRowSize; i++) {
+    for (let j = 0; j < boardColumnSize; j++) {
       tiles.push(
         <Square
           key={`Tile-${i}-${j}`}
